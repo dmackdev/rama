@@ -75,7 +75,6 @@ pub enum HttpMatcherKind<State, Body> {
     /// [`SocketAddr`]: std::net::SocketAddr
     Socket(SocketMatcher),
     /// A custom matcher that implements [`crate::service::Matcher`].
-    // Custom(Box<dyn crate::service::Matcher<State, Request<Body>>>), TODO: Does not satisfy Clone, unless inner field satisfies Clone.
     Custom(Arc<dyn crate::service::Matcher<State, Request<Body>>>),
 }
 

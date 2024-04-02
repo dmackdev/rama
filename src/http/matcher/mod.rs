@@ -547,6 +547,39 @@ impl<State, Body> HttpMatcher<State, Body> {
         Self::method_get().and_path(path)
     }
 
+    /// Create a matcher that matches according to a custom predicate.
+    ///
+    /// See [`crate::service::Matcher`] for more information.
+    pub fn custom<M>(matcher: M) -> Self
+    where
+        M: crate::service::Matcher<State, Request<Body>>,
+    {
+        Self {
+            kind: HttpMatcherKind::Custom(Arc::new(matcher)),
+            negate: false,
+        }
+    }
+
+    /// Add a custom matcher to match on top of the existing set of [`HttpMatcher`] matchers.
+    ///
+    /// See [`crate::service::Matcher`] for more information.
+    pub fn and_custom<M>(self, matcher: M) -> Self
+    where
+        M: crate::service::Matcher<State, Request<Body>>,
+    {
+        self.and(Self::custom(matcher))
+    }
+
+    /// Create a custom matcher to match as an alternative to the existing set of [`HttpMatcher`] matchers.
+    ///
+    /// See [`crate::service::Matcher`] for more information.
+    pub fn or_custom<M>(self, matcher: M) -> Self
+    where
+        M: crate::service::Matcher<State, Request<Body>>,
+    {
+        self.or(Self::custom(matcher))
+    }
+
     /// Create a [`PathMatcher`] matcher to match for a POST request.
     pub fn post(path: impl AsRef<str>) -> Self {
         Self::method_post().and_path(path)

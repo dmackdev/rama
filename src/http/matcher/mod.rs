@@ -5,6 +5,13 @@
 //! [`service::Matcher`]: crate::service::Matcher
 //! [`http::Request`]: crate::http::Request
 //! [`service::matcher` module]: crate::service::matcher
+use crate::{
+    http::Request,
+    service::{context::Extensions, matcher::IteratorMatcherExt, Context},
+    stream::matcher::SocketMatcher,
+};
+use std::fmt;
+use std::sync::Arc;
 
 mod method;
 #[doc(inline)]
@@ -28,15 +35,6 @@ pub use path::{PathMatcher, UriParams, UriParamsDeserializeError};
 mod header;
 #[doc(inline)]
 pub use header::HeaderMatcher;
-
-use crate::{
-    http::Request,
-    service::{context::Extensions, matcher::IteratorMatcherExt, Context},
-    stream::matcher::SocketMatcher,
-};
-
-use core::fmt;
-use std::sync::Arc;
 
 #[derive(Debug, Clone)]
 /// A matcher that is used to match an http [`Request`]

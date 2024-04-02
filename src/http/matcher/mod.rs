@@ -36,14 +36,22 @@ mod header;
 #[doc(inline)]
 pub use header::HeaderMatcher;
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 /// A matcher that is used to match an http [`Request`]
 pub struct HttpMatcher<State, Body> {
     kind: HttpMatcherKind<State, Body>,
     negate: bool,
 }
 
-#[derive(Clone)]
+impl<State, Body> Clone for HttpMatcher<State, Body> {
+    fn clone(&self) -> Self {
+        Self {
+            kind: self.kind.clone(),
+            negate: self.negate,
+        }
+    }
+}
+
 /// A matcher that is used to match an http [`Request`]
 pub enum HttpMatcherKind<State, Body> {
     /// zero or more [`HttpMatcher`]s that all need to match in order for the matcher to return `true`.
@@ -71,21 +79,41 @@ pub enum HttpMatcherKind<State, Body> {
     Custom(Arc<dyn crate::service::Matcher<State, Request<Body>>>),
 }
 
-impl<State, Body> fmt::Debug for HttpMatcherKind<State, Body> {
+impl<State, Body> Clone for HttpMatcherKind<State, Body> {
+    fn clone(&self) -> Self {
+        match self {
+            Self::All(inner) => Self::All(inner.clone()),
+            Self::Method(inner) => Self::Method(*inner),
+            Self::Path(inner) => Self::Path(inner.clone()),
+            Self::Domain(inner) => Self::Domain(inner.clone()),
+            Self::Version(inner) => Self::Version(*inner),
+            Self::Any(inner) => Self::Any(inner.clone()),
+            Self::Uri(inner) => Self::Uri(inner.clone()),
+            Self::Header(inner) => Self::Header(inner.clone()),
+            Self::Socket(inner) => Self::Socket(inner.clone()),
+            Self::Custom(inner) => Self::Custom(inner.clone()),
+        }
+    }
+}
+
+impl<State, Body> fmt::Debug for HttpMatcherKind<State, Body>
+where
+    State: fmt::Debug,
+    Body: fmt::Debug,
+{
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        // match self {
-        //     Self::All(inner) => f.debug_tuple("All").field(inner).finish(),
-        //     Self::Method(inner) => f.debug_tuple("Method").field(inner).finish(),
-        //     Self::Path(inner) => f.debug_tuple("Path").field(inner).finish(),
-        //     Self::Domain(inner) => f.debug_tuple("Domain").field(inner).finish(),
-        //     Self::Version(inner) => f.debug_tuple("Version").field(inner).finish(),
-        //     Self::Any(inner) => f.debug_tuple("Any").field(inner).finish(),
-        //     Self::Uri(inner) => f.debug_tuple("Uri").field(inner).finish(),
-        //     Self::Header(inner) => f.debug_tuple("Header").field(inner).finish(),
-        //     Self::Socket(inner) => f.debug_tuple("Socket").field(inner).finish(),
-        //     Self::Custom(_) => f.debug_tuple("Custom").finish(),
-        // }
-        todo!("The type parameters State and Body do not implement fmt::Debug, so cannot debug format inner fields.")
+        match self {
+            Self::All(inner) => f.debug_tuple("All").field(inner).finish(),
+            Self::Method(inner) => f.debug_tuple("Method").field(inner).finish(),
+            Self::Path(inner) => f.debug_tuple("Path").field(inner).finish(),
+            Self::Domain(inner) => f.debug_tuple("Domain").field(inner).finish(),
+            Self::Version(inner) => f.debug_tuple("Version").field(inner).finish(),
+            Self::Any(inner) => f.debug_tuple("Any").field(inner).finish(),
+            Self::Uri(inner) => f.debug_tuple("Uri").field(inner).finish(),
+            Self::Header(inner) => f.debug_tuple("Header").field(inner).finish(),
+            Self::Socket(inner) => f.debug_tuple("Socket").field(inner).finish(),
+            Self::Custom(_) => f.debug_tuple("Custom").finish(),
+        }
     }
 }
 

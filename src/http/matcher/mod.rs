@@ -36,7 +36,6 @@ mod header;
 #[doc(inline)]
 pub use header::HeaderMatcher;
 
-#[derive(Debug)]
 /// A matcher that is used to match an http [`Request`]
 pub struct HttpMatcher<State, Body> {
     kind: HttpMatcherKind<State, Body>,
@@ -49,6 +48,15 @@ impl<State, Body> Clone for HttpMatcher<State, Body> {
             kind: self.kind.clone(),
             negate: self.negate,
         }
+    }
+}
+
+impl<State, Body> fmt::Debug for HttpMatcher<State, Body> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("HttpMatcher")
+            .field("kind", &self.kind)
+            .field("negate", &self.negate)
+            .finish()
     }
 }
 
@@ -95,11 +103,7 @@ impl<State, Body> Clone for HttpMatcherKind<State, Body> {
     }
 }
 
-impl<State, Body> fmt::Debug for HttpMatcherKind<State, Body>
-where
-    State: fmt::Debug,
-    Body: fmt::Debug,
-{
+impl<State, Body> fmt::Debug for HttpMatcherKind<State, Body> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Self::All(inner) => f.debug_tuple("All").field(inner).finish(),

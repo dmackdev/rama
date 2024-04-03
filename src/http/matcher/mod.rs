@@ -696,7 +696,7 @@ where
             HttpMatcherKind::Header(header) => header.matches(ext, ctx, req),
             HttpMatcherKind::Socket(socket) => socket.matches(ext, ctx, req),
             HttpMatcherKind::Any(all) => all.iter().matches_or(ext, ctx, req),
-            HttpMatcherKind::Custom(f) => f.matches(ext, ctx, req),
+            HttpMatcherKind::Custom(matcher) => matcher.matches(ext, ctx, req),
         }
     }
 }
